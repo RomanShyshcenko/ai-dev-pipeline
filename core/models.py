@@ -1,21 +1,23 @@
+from typing import List, Literal, Optional
+
 from pydantic import BaseModel, Field
-from typing import List, Optional
+
 
 class GatekeeperDecision(BaseModel):
-    """The strict JSON structure the Gatekeeper MUST output."""
-    
-    status: str = Field(
-        description="Must be exactly 'APPROVED' or 'REJECTED'"
+    """Structured decision emitted by the Gatekeeper agent."""
+
+    status: Literal["APPROVED", "REJECTED"] = Field(
+        description="Must be exactly 'APPROVED' or 'REJECTED'."
     )
     missing_critical_info: List[str] = Field(
-        description="List of missing technical details, like DB schema or APIs. Leave empty if APPROVED.",
-        default=[]
+        default_factory=list,
+        description="Missing technical details that block implementation.",
     )
     questions_for_user: List[str] = Field(
-        description="Questions to ask the user to fix the TT. Leave empty if APPROVED.",
-        default=[]
+        default_factory=list,
+        description="Clarifying questions for the user.",
     )
     refined_tt: Optional[str] = Field(
-        description="If APPROVED, the perfectly rewritten technical prompt for the dev agents. Null if REJECTED.",
-        default=None
+        default=None,
+        description="Rewritten strict TypeScript technical task when approved.",
     )
